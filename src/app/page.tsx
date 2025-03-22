@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import './globals.css'
+import './globals.css';
 
 type Ticket = {
   type: string;
@@ -8,24 +8,44 @@ type Ticket = {
 };
 
 export default function Home() {
-
-
-  const  eventos = [
+  const eventos = [
     {
-      "id": 3,
-      "title": "Exposición de Arte Moderno",
-      "description": "Una muestra de arte contemporáneo de artistas emergentes.",
-      "image": "/art-exhibition.jpg",
-      "tickets": [
-        { "type": "Entrada General", "price": 25 },
-        { "type": "VIP", "price": 50 }
-      ]
+      id: 3,
+      title: "Exposición de Arte Moderno",
+      description: "Una muestra de arte contemporáneo de artistas emergentes.",
+      image: "/art-exhibition.jpg",
+      tickets: [
+        { type: "Entrada General", price: 25 },
+        { type: "VIP", price: 50 },
+      ],
     },
-]
-return (
+    // Agrega más eventos aquí para ver cómo se distribuyen en las columnas
+    {
+      id: 4,
+      title: "Concierto de Rock",
+      description: "Disfruta de las mejores bandas de rock en vivo.",
+      image: "/rock-concert.jpg",
+      tickets: [
+        { type: "Entrada General", price: 30 },
+        { type: "VIP", price: 75 },
+      ],
+    },
+    {
+      id: 5,
+      title: "Festival de Cine",
+      description: "Proyecciones de películas independientes y clásicas.",
+      image: "/film-festival.jpg",
+      tickets: [
+        { type: "Entrada General", price: 20 },
+        { type: "VIP", price: 45 },
+      ],
+    },
+  ];
+
+  return (
     <div className="p-6 bg-black min-h-screen">
       <h1 className="text-3xl font-bold text-center mb-8">Eventos Disponibles</h1>
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {eventos.map((event) => (
           <div
             key={event.id}
