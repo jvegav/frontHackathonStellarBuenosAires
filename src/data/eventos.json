@@ -1,0 +1,103 @@
+[
+    {
+      "id": 3,
+      "title": "Exposición de Arte Moderno",
+      "description": "Una muestra de arte contemporáneo de artistas emergentes.",
+      "image": "/images/art-exhibition.jpg",
+      "tickets": [
+        { "type": "Entrada General", "price": 25 },
+        { "type": "VIP", "price": 50 }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Torneo de eSports",
+      "description": "Compite con los mejores jugadores en este emocionante torneo.",
+      "image": "/images/esports-tournament.jpg",
+      "tickets": [
+        { "type": "Participante", "price": 40 },
+        { "type": "Espectador", "price": 15 }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Feria Gastronómica",
+      "description": "Descubre los mejores sabores del mundo en un solo lugar.",
+      "image": "/images/food-fair.jpg",
+      "tickets": [
+        { "type": "General", "price": 10 },
+        { "type": "Pase Degustación", "price": 35 }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Carrera 10K",
+      "description": "Participa en una carrera desafiante por la ciudad.",
+      "image": "/images/marathon.jpg",
+      "tickets": [
+        { "type": "Inscripción Individual", "price": 30 },
+        { "type": "Inscripción en Equipo", "price": 100 }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Obra de Teatro Clásico",
+      "description": "Disfruta de una interpretación magistral de una obra clásica.",
+      "image": "/images/theater-play.jpg",
+      "tickets": [
+        { "type": "General", "price": 20 },
+        { "type": "Preferencial", "price": 50 }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Conferencia de Tecnología",
+      "description": "Explora las últimas tendencias en innovación y tecnología.",
+      "image": "/images/tech-conference.jpg",
+      "tickets": [
+        { "type": "Entrada Básica", "price": 60 },
+        { "type": "Entrada Premium", "price": 120 }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Taller de Fotografía",
+      "description": "Aprende técnicas avanzadas de fotografía con expertos.",
+      "image": "/images/photography-workshop.jpg",
+      "tickets": [
+        { "type": "Básico", "price": 50 },
+        { "type": "Avanzado", "price": 90 }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Noche de Stand-Up Comedy",
+      "description": "Ríete sin parar con los mejores comediantes del momento.",
+      "image": "/images/comedy-night.jpg",
+      "tickets": [
+        { "type": "General", "price": 25 },
+        { "type": "VIP", "price": 60 }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Festival de Jazz",
+      "description": "Un encuentro con los grandes exponentes del jazz.",
+      "image": "/images/jazz-festival.jpg",
+      "tickets": [
+        { "type": "Entrada General", "price": 40 },
+        { "type": "Zona Preferencial", "price": 80 }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Competencia de Barismo",
+      "description": "Los mejores baristas compiten por el título de campeón.",
+      "image": "/images/barista-competition.jpg",
+      "tickets": [
+        { "type": "Espectador", "price": 15 },
+        { "type": "Masterclass", "price": 50 }
+      ]
+    }
+  ]
+  
