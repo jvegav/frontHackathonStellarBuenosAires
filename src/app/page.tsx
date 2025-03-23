@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Calendar, MapPin, Tag, X,  ChevronLeft, ChevronRight } from "lucide-react"
 import './globals.css'
+import LoginButton from "./login"
 
 // Event data
 const events = [
@@ -240,9 +241,7 @@ export default function EventsPage() {
            
             
           </nav>
-          <button className="bg-purple-950 hover:bg-purple-800 text-white px-4 py-2 rounded-md transition-colors">
-            Log In
-          </button>
+          <LoginButton />
         </div>
       </header>
 
