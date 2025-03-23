@@ -1,44 +1,54 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from 'react';
+"use client";
+import { useEffect, useState } from "react";
 
 declare global {
   interface Window {
-    ethereum?: any;
+    freighterApi?: {
+      isConnected: () => Promise<boolean>;
+      getPublicKey: () => Promise<string>;
+    };
   }
 }
 
-function LoginButton({ onAccountChange }: { onAccountChange: (account: string | null) => void }) {
-  const [account, setAccount] = useState(null);
+function LoginButton({
+  onAccountChange,
+}: {
+  onAccountChange: (account: string | null) => void;
+}) {
+  const [account, setAccount] = useState<string | null>(null);
 
   useEffect(() => {
-    checkWalletConnection();
+    checkFreighterConnection();
   }, []);
 
-  const checkWalletConnection = async () => {
-    if (window.ethereum) {
+  const checkFreighterConnection = async () => {
+    if (window.freighterApi) {
       try {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          setAccount(accounts[0]);
-          onAccountChange(accounts[0]);
+        const connected = await window.freighterApi.isConnected();
+        if (connected) {
+          const publicKey = await window.freighterApi.getPublicKey();
+          setAccount(publicKey);
+          onAccountChange(publicKey);
         }
       } catch (error) {
-        console.error('Error checking wallet connection:', error);
+        console.error("Error checking Freighter:", error);
       }
     }
   };
 
-  const connectWallet = async () => {
-    if (window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        setAccount(accounts[0]);
-        onAccountChange(accounts[0]);
-      } catch (error) {
-        console.error('Error connecting to MetaMask:', error);
-      }
-    } else {
-      alert('MetaMask is not installed. Please install it to connect.');
+  const connectFreighter = async () => {
+    if (!window.freighterApi) {
+      alert("⚠️ Freighter no está instalado o habilitado.");
+      return;
+    }
+
+    try {
+      const publicKey = await window.freighterApi.getPublicKey();
+      setAccount(publicKey);
+      onAccountChange(publicKey);
+    } catch (error) {
+      console.error("Error connecting Freighter:", error);
+      alert("Error connecting to Freighter.");
     }
   };
 
@@ -55,15 +65,15 @@ function LoginButton({ onAccountChange }: { onAccountChange: (account: string | 
             className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors"
             onClick={disconnectWallet}
           >
-            Disconnect Wallet
+            Disconnect Freighter
           </button>
         </div>
       ) : (
         <button
           className="bg-purple-950 hover:bg-purple-800 text-white px-4 py-2 rounded-md transition-colors"
-          onClick={connectWallet}
+          onClick={connectFreighter}
         >
-          Log In with MetaMask
+          Connect with Freighter
         </button>
       )}
     </div>

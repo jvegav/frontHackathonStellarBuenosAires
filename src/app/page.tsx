@@ -5,9 +5,10 @@ import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Calendar, MapPin, Tag, X,  ChevronLeft, ChevronRight } from "lucide-react"
-import { ethers } from "ethers"
 import './globals.css'
 import LoginButton from "./login"
+import { connectFreighter, invokeMethod, readMethod } from "../lib/soroban.server";
+import { Keypair, Address } from "@stellar/stellar-sdk";
 
 // Event data
 const events = [
@@ -217,86 +218,43 @@ export default function EventsPage() {
       console.error('Error fetching user tickets:', error);
     }
   };
-
-  const handlePurchase = async (account?:any) => {
-    if (!selectedEvent || !account) return;
-    
+  const handlePurchase = async (account: string) => {
+    if (!selectedEvent || !selectedTicketType) return;
+  
     try {
-      console.log("account with purchase: " + account);
-      
-      // Get current ethereum provider from window.ethereum (MetaMask)
-      const provider = window.ethereum;
-      if (!provider) {
-        throw new Error("MetaMask not detected. Please install MetaMask.");
-      }
-      
-      // Generate unique ticket ID
-      const ticketId = generateUniqueTicketId();
-      
-      // Calculate price in Wei (assuming selectedEvent.price is in ETH)
-      const priceInWei = ethers.parseEther('0');
-      
-      // Create transaction parameters
-      const transactionParameters = {
-        from: account,
-        to: process.env.NEXT_PUBLIC_RECIPIENT_ADDRESS, // Your wallet or contract address to receive payment
-        value: priceInWei.toString(), // Hex string of the price in wei
-        gas: '0x5208', // 21000 gas limit in hex
-      };
-      
-      // Request transaction from MetaMask
-      const txHash = await window.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [transactionParameters],
-      });
-      
-      console.log("Transaction hash:", txHash);
-      
-     
-      const response = await fetch('http://127.0.0.1:8000/api/purchase-ticket', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ticket_id: ticketId,
-          user_id: account,
-          description: selectedEvent.title,
-          price: selectedEvent.price,
-          transaction_hash: txHash,
-          payment_method: 'ethereum',
-        }),
-      });
-      
-      const data = await response.json();
-      console.log("Server response:", data);
-      
-      if (!response.ok) {
-        throw new Error(`Purchase error: ${data.detail || "Unknown"}`);
-      }
-      
-      // Update ticket list and UI
-      fetchUserTickets(account);
-      alert(`Purchase completed: ${selectedTicketType} for ${selectedEvent.title}`);
-      setSelectedTicketType("");
-      setSelectedEvent(null);
+      // Asegurarte que la wallet está conectada
+      const pubKey = await connectFreighter();
+      if (!pubKey) return;
+  
+      const keypair = Keypair.fromPublicKey(pubKey);
+  
+      // Ejecutar el método del contrato
+      const result = await invokeMethod("buy_ticket", [
+        0, // Aquí deberías pasar el ID real del ticket
+        new Address(pubKey) // Comprador
+      ], keypair);
+  
+      console.log("Compra realizada en Soroban:", result);
+      alert("¡Compra exitosa en Soroban!");
+  
+      fetchUserTickets(pubKey);
       setIsModalOpen(false);
-      
     } catch (error) {
-      console.error('Error purchasing ticket:', error);
-      if (error instanceof Error) {
-        alert(`Error: ${error.message}`);
-      } else {
-        alert('An unknown error occurred');
-      }
+      console.error("Error en la compra:", error);
+      alert("Error en la compra. Revisa la consola.");
     }
   };
 
   useEffect(() => {
-    if (account) {
-      fetchUserTickets(account);
-    }
-  }, [account]);
+    const connect = async () => {
+      const pubKey = await connectFreighter();
+      if (pubKey) {
+        setAccount(pubKey);
+        fetchUserTickets(pubKey);
+      }
+    };
+    connect();
+  }, []);
 
   // Define interfaces for better type safety
   interface Ticket {
@@ -372,6 +330,23 @@ export default function EventsPage() {
           </p>
         </div>
       </div>
+
+      <button
+  onClick={async () => {
+    const res = await fetch('/api/create-ticket', { method: 'POST' });
+    const data = await res.json();
+    if (data.ok) {
+      alert("Ticket creado!");
+    } else {
+      alert("Error al crear ticket: " + data.error);
+    }
+  }}
+  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow"
+>
+  Crear ticket (API)
+</button>
+
+    
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-12">
