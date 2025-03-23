@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useState, useRef, useEffect } from "react"
@@ -95,6 +96,17 @@ export default function EventsPage() {
   const [selectedEvent, setSelectedEvent] = useState<typeof events[number] | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [account, setAccount] = useState(null);
+  
+  // Define interface for user tickets
+  interface UserTicket {
+    id: string;
+    eventName: string;
+    ticketType: string;
+    // Add other properties as needed
+  }
+  
+  const [userTickets, setUserTickets] = useState<UserTicket[]>([]);
 
 
   
@@ -129,6 +141,20 @@ export default function EventsPage() {
       })
       setCurrentSlide(index)
     }
+  }
+
+  const generateUniqueTicketId = () => {
+    // Get current timestamp in milliseconds
+    const timestamp = Date.now().toString(36);
+    
+    // Generate a random component
+    const randomPart = Math.random().toString(36).substring(2, 10);
+    
+    // Create a prefix for better identification
+    const prefix = 'TKT';
+    
+    // Combine all parts to create a unique ID
+    return `${prefix}-${timestamp}-${randomPart}`;
   }
   
   const nextSlide = () => {
@@ -179,14 +205,60 @@ export default function EventsPage() {
     setSelectedTicketType(ticketType)
   }
 
-  const handlePurchase = () => {
-    if (selectedEvent) {
-      alert(`Purchase completed: ${selectedTicketType} for ${selectedEvent.title}`)
-      setSelectedTicketType("")
-      setSelectedEvent(null)
-      setIsModalOpen(false)
+  const handleAccountChange = (newAccount?: any) => {
+    console.log("account with handlee change" + newAccount);
+    setAccount(newAccount);
+  };
+
+  const fetchUserTickets = async (account?: any) => {
+    try {
+      console.log("account with fetch" + account);
+      const response = await fetch(`http://127.0.0.1:8000/api/user-tickets/${account}`);
+      const data = await response.json();
+      setUserTickets(data);
+    } catch (error) {
+      console.error('Error fetching user tickets:', error);
     }
-  }
+  };
+
+  const handlePurchase = async (account?:any) => {
+    if (selectedEvent && account) {
+      try {
+        console.log("account with purchase" + account);
+        const ticketId = generateUniqueTicketId(); // Implementa esta función
+        const response  = await fetch('http://127.0.0.1:8000/api/purchase-ticket', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ticket_id: ticketId,
+            user_id: account, 
+            description: selectedEvent.title
+          }),
+        });
+        const data = await response.json();
+      console.log("Respuesta del servidor:", data);
+
+      if (!response.ok) {
+        throw new Error(`Error en la compra: ${data.detail || "Desconocido"}`);
+      }
+        fetchUserTickets(account); // Actualiza la lista de tickets
+        alert(`Purchase completed: ${selectedTicketType} for ${selectedEvent.title}`);
+        setSelectedTicketType("");
+        setSelectedEvent(null);
+        setIsModalOpen(false);
+      } catch (error) {
+        console.error('Error purchasing ticket:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (account) {
+      fetchUserTickets(account);
+    }
+  }, [account]);
 
   // Define interfaces for better type safety
   interface Ticket {
@@ -235,13 +307,20 @@ export default function EventsPage() {
               Home
             </Link>
 
-            <Link href="/" className="text-purple-950 font-bold text-xl">
-              My Tickets
-            </Link>
+            
+<Link
+  href={{
+    pathname: '/tickets',
+    query: { tickets: JSON.stringify(userTickets) }, // Serializas los tickets en una cadena
+  }}
+  className="text-purple-950 font-bold text-xl"
+>
+  My Tickets
+</Link>
            
             
           </nav>
-          <LoginButton />
+          <LoginButton onAccountChange={handleAccountChange} />
         </div>
       </header>
 
@@ -397,6 +476,8 @@ export default function EventsPage() {
               slide.
             </div>
           </div>
+
+
         
       </main>
 
@@ -517,7 +598,7 @@ export default function EventsPage() {
                 <button
                   className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                   disabled={!selectedTicketType}
-                  onClick={handlePurchase}
+                  onClick={() => handlePurchase(account)}
                 >
                   Confirm Purchase
                 </button>
@@ -529,4 +610,5 @@ export default function EventsPage() {
     </div>
   )
 }
+
 
