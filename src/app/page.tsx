@@ -7,7 +7,7 @@ import Link from "next/link"
 import { Calendar, MapPin, Tag, X,  ChevronLeft, ChevronRight } from "lucide-react"
 import './globals.css'
 import LoginButton from "./login"
-import { connectFreighter, invokeMethod, readMethod } from "../lib/soroban.server";
+import { connectFreighter, invokeMethod } from "../lib/soroban.server";
 import { Keypair, Address } from "@stellar/stellar-sdk";
 
 // Event data
@@ -94,8 +94,6 @@ export default function EventsPage() {
   const [selectedEvent, setSelectedEvent] = useState<typeof events[number] | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [account, setAccount] = useState(null);
-  
   // Define interface for user tickets
   interface UserTicket {
     id: string;
@@ -154,6 +152,8 @@ export default function EventsPage() {
     // Combine all parts to create a unique ID
     return `${prefix}-${timestamp}-${randomPart}`;
   }
+
+  generateUniqueTicketId();
   
   const nextSlide = () => {
     if (currentSlide < totalSlides - 1) {
@@ -205,7 +205,6 @@ export default function EventsPage() {
 
   const handleAccountChange = (newAccount?: any) => {
     console.log("account with handlee change" + newAccount);
-    setAccount(newAccount);
   };
 
   const fetchUserTickets = async (account?: any) => {
@@ -218,7 +217,7 @@ export default function EventsPage() {
       console.error('Error fetching user tickets:', error);
     }
   };
-  const handlePurchase = async (account: string) => {
+  const handlePurchase = async () => {
     if (!selectedEvent || !selectedTicketType) return;
   
     try {
@@ -249,7 +248,6 @@ export default function EventsPage() {
     const connect = async () => {
       const pubKey = await connectFreighter();
       if (pubKey) {
-        setAccount(pubKey);
         fetchUserTickets(pubKey);
       }
     };
@@ -612,7 +610,7 @@ export default function EventsPage() {
                 <button
                   className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                   disabled={!selectedTicketType}
-                  onClick={() => handlePurchase(account)}
+                  onClick={() => handlePurchase()}
                 >
                   Confirm Purchase
                 </button>

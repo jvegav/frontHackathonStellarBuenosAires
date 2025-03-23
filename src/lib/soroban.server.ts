@@ -1,12 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Address,
-  ContractSpec,
   Keypair,
-  Networks,
   TransactionBuilder,
   nativeToScVal,
   scValToNative,
-  xdr,
 } from "@stellar/stellar-sdk";
 import { SorobanRpc } from "@stellar/stellar-sdk";
 
@@ -17,11 +15,11 @@ const contractId = "CBY3QW7MP6NKYBZLMAFERAGFTY56ARCKJXDLAKYNIQHDCK5KQTLUCFIZ";
 const server = new SorobanRpc.Server(rpcUrl, { allowHttp: false });
   export async function readMethod(method: string, args: any[] = []) {
     const spec = await server.getContractSpec(contractId);
-    const fnSpec = spec.find((s) => s.type === "function" && s.name === method);
+    const fnSpec = spec.find((s?: any) => s.type === "function" && s.name === method);
     if (!fnSpec || fnSpec.type !== "function") {
       throw new Error(`Method ${method} not found in contract`);
     }
-    const scArgs = fnSpec.inputs.map((input, i) => nativeToScVal(args[i], input.type));
+    const scArgs = fnSpec.inputs.map((input?:any, i?: any) => nativeToScVal(args[i], input.type));
     const response = await server.simulateContractFunction({
       contractId,
       functionName: method,
