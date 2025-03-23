@@ -18,10 +18,9 @@ const events = [
     date: "June 15, 2025",
     location: "Exhibition Center, Madrid",
     category: "Electronic Music",
+    price:100,
     tickets: [
-      { type: "General", price: "€50" },
-      { type: "VIP", price: "€120" },
-      { type: "Platinum", price: "€200" },
+      { type: "General", price: "€100" },
     ],
   },
   {
@@ -32,9 +31,9 @@ const events = [
     date: "July 22, 2025",
     location: "Sports Palace, Barcelona",
     category: "Rock",
+    price:100,
     tickets: [
-      { type: "General Admission", price: "€45" },
-      { type: "Premium Access", price: "€90" },
+      { type: "General Admission", price: "€100" },
     ],
   },
   {
@@ -46,10 +45,9 @@ const events = [
     date: "August 5, 2025",
     location: "Main Theater, Valencia",
     category: "Jazz",
+    price:100,
     tickets: [
-      { type: "Standard", price: "€60" },
-      { type: "Premium", price: "€110" },
-      { type: "Full Experience", price: "€180" },
+      { type: "Standard", price: "€100" },
     ],
   },
   {
@@ -61,10 +59,9 @@ const events = [
     date: "August 5, 2025",
     location: "Main Theater, Valencia",
     category: "Jazz",
+    price: 100,
     tickets: [
-      { type: "Standard", price: "€60" },
-      { type: "Premium", price: "€110" },
-      { type: "Full Experience", price: "€180" },
+      { type: "Standard", price: "€100" },
     ],
   },
   {
@@ -76,10 +73,9 @@ const events = [
     date: "August 5, 2025",
     location: "Main Theater, Valencia",
     category: "Jazz",
+    price: 100,
     tickets: [
-      { type: "Standard", price: "€60" },
-      { type: "Premium", price: "€110" },
-      { type: "Full Experience", price: "€180" },
+      { type: "Standard", price: "€100" },
     ],
   },
 ]
@@ -234,7 +230,8 @@ export default function EventsPage() {
           body: JSON.stringify({
             ticket_id: ticketId,
             user_id: account, 
-            description: selectedEvent.title
+            description: selectedEvent.title,
+            price: selectedEvent.price,
           }),
         });
         const data = await response.json();
@@ -274,6 +271,7 @@ export default function EventsPage() {
     date: string;
     location: string;
     category: string;
+    price: number;
     tickets: Ticket[];
   }
 
