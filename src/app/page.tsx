@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Calendar, MapPin, Tag, X,  ChevronLeft, ChevronRight } from "lucide-react"
+import { ethers } from "ethers"
 import './globals.css'
 import LoginButton from "./login"
 
@@ -218,35 +219,75 @@ export default function EventsPage() {
   };
 
   const handlePurchase = async (account?:any) => {
-    if (selectedEvent && account) {
-      try {
-        console.log("account with purchase" + account);
-        const ticketId = generateUniqueTicketId(); // Implementa esta función
-        const response  = await fetch('http://127.0.0.1:8000/api/purchase-ticket', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ticket_id: ticketId,
-            user_id: account, 
-            description: selectedEvent.title,
-            price: selectedEvent.price,
-          }),
-        });
-        const data = await response.json();
-      console.log("Respuesta del servidor:", data);
-
-      if (!response.ok) {
-        throw new Error(`Error en la compra: ${data.detail || "Desconocido"}`);
+    if (!selectedEvent || !account) return;
+    
+    try {
+      console.log("account with purchase: " + account);
+      
+      // Get current ethereum provider from window.ethereum (MetaMask)
+      const provider = window.ethereum;
+      if (!provider) {
+        throw new Error("MetaMask not detected. Please install MetaMask.");
       }
-        fetchUserTickets(account); // Actualiza la lista de tickets
-        alert(`Purchase completed: ${selectedTicketType} for ${selectedEvent.title}`);
-        setSelectedTicketType("");
-        setSelectedEvent(null);
-        setIsModalOpen(false);
-      } catch (error) {
-        console.error('Error purchasing ticket:', error);
+      
+      // Generate unique ticket ID
+      const ticketId = generateUniqueTicketId();
+      
+      // Calculate price in Wei (assuming selectedEvent.price is in ETH)
+      const priceInWei = ethers.parseEther('0');
+      
+      // Create transaction parameters
+      const transactionParameters = {
+        from: account,
+        to: process.env.NEXT_PUBLIC_RECIPIENT_ADDRESS, // Your wallet or contract address to receive payment
+        value: priceInWei.toString(), // Hex string of the price in wei
+        gas: '0x5208', // 21000 gas limit in hex
+      };
+      
+      // Request transaction from MetaMask
+      const txHash = await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [transactionParameters],
+      });
+      
+      console.log("Transaction hash:", txHash);
+      
+     
+      const response = await fetch('http://127.0.0.1:8000/api/purchase-ticket', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ticket_id: ticketId,
+          user_id: account,
+          description: selectedEvent.title,
+          price: selectedEvent.price,
+          transaction_hash: txHash,
+          payment_method: 'ethereum',
+        }),
+      });
+      
+      const data = await response.json();
+      console.log("Server response:", data);
+      
+      if (!response.ok) {
+        throw new Error(`Purchase error: ${data.detail || "Unknown"}`);
+      }
+      
+      // Update ticket list and UI
+      fetchUserTickets(account);
+      alert(`Purchase completed: ${selectedTicketType} for ${selectedEvent.title}`);
+      setSelectedTicketType("");
+      setSelectedEvent(null);
+      setIsModalOpen(false);
+      
+    } catch (error) {
+      console.error('Error purchasing ticket:', error);
+      if (error instanceof Error) {
+        alert(`Error: ${error.message}`);
+      } else {
+        alert('An unknown error occurred');
       }
     }
   };
